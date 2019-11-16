@@ -1,4 +1,3 @@
-
 //
 // d1ca
 //
@@ -16,17 +15,19 @@ use std::fmt;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-pub struct Universe {
+pub struct D1ca {
     width: u32,
     order: u32,
     cells: Vec<u8>,
+
+    direction: u8,
 
     // Square lattice to show the time evolution of cells
     lattice: Vec<u8>,
 }
 
 #[wasm_bindgen]
-impl Universe {
+impl D1ca {
     // cells の更新を行う
     pub fn tick(&mut self) {
         // 規則番号からアルゴリズムを取得する
@@ -45,7 +46,7 @@ impl Universe {
         for i in 0..self.width {
             let mut count: u8 = 0;
             for j in 0..5 {
-                count += old[((self.width + i + j - 2) % self.width) as usize];
+                count += old[((self.width + i + j - 1 - self.direction as u32) % self.width) as usize];
             }
             self.cells[i as usize] = rule[count as usize]; // 配列のインデックスは usize でないと排除
         }
@@ -70,7 +71,7 @@ impl Universe {
     // width を引数に取る
     // 初期状態は乱数で決定する
     // seed はランダム。技術的な問題
-    pub fn new(width: u32, order: u32) -> Universe {
+    pub fn new(width: u32, order: u32) -> D1ca {
         let cells = (0..width)
             .map(|_| if rand::random::<u32>() % 2 == 0 { 0 } else { 1 })
             .collect();
@@ -78,10 +79,13 @@ impl Universe {
         // 正方格子の情報
         let lattice = vec![0 as u8; (width * width) as usize];
 
-        Universe {
+        let direction = 1u8;
+
+        D1ca {
             width,
             order,
             cells,
+            direction,
             lattice,
         }
     }
@@ -90,6 +94,7 @@ impl Universe {
     pub fn renew(&mut self, width: u32, order: u32) {
         self.width = width;
         self.order = order;
+        self.direction = 1u8;
         self.cells = vec![0 as u8; width as usize];
         self.lattice = vec![0 as u8; (width * width) as usize];
         for idx in 0..width {
@@ -99,8 +104,14 @@ impl Universe {
         }
     }
 
+    pub fn change_direction(&mut self) {
+        self.direction = (self.direction + 1) % 3;
+    }
     pub fn get_width(&self) -> u32 {
         self.width
+    }
+    pub fn get_direction(&self) -> u8 {
+        self.direction
     }
     pub fn get_cells(&self) -> *const u8 {
         self.cells.as_ptr()
@@ -114,7 +125,7 @@ impl Universe {
 }
 
 // Lattice を描画する
-impl fmt::Display for Universe {
+impl fmt::Display for D1ca {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for line in self.lattice.as_slice().chunks(self.width as usize) {
             for &cell in line {
@@ -127,5 +138,4 @@ impl fmt::Display for Universe {
     }
 }
 
-
-
+pub type Universe = D1ca;
