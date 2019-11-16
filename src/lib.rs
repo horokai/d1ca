@@ -1,5 +1,5 @@
 //
-// d1ca
+// D1caUniverse
 //
 
 mod utils;
@@ -15,7 +15,7 @@ use std::fmt;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-pub struct D1ca {
+pub struct D1caUniverse {
     width: u32,
     order: u32,
     cells: Vec<u8>,
@@ -27,7 +27,7 @@ pub struct D1ca {
 }
 
 #[wasm_bindgen]
-impl D1ca {
+impl D1caUniverse {
     // cells の更新を行う
     pub fn tick(&mut self) {
         // 規則番号からアルゴリズムを取得する
@@ -71,7 +71,7 @@ impl D1ca {
     // width を引数に取る
     // 初期状態は乱数で決定する
     // seed はランダム。技術的な問題
-    pub fn new(width: u32, order: u32) -> D1ca {
+    pub fn new(width: u32, order: u32) -> D1caUniverse {
         let cells = (0..width)
             .map(|_| if rand::random::<u32>() % 2 == 0 { 0 } else { 1 })
             .collect();
@@ -81,7 +81,7 @@ impl D1ca {
 
         let direction = 1u8;
 
-        D1ca {
+        D1caUniverse {
             width,
             order,
             cells,
@@ -125,7 +125,7 @@ impl D1ca {
 }
 
 // Lattice を描画する
-impl fmt::Display for D1ca {
+impl fmt::Display for D1caUniverse {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for line in self.lattice.as_slice().chunks(self.width as usize) {
             for &cell in line {
@@ -138,4 +138,4 @@ impl fmt::Display for D1ca {
     }
 }
 
-pub type Universe = D1ca;
+pub type Universe = D1caUniverse;
