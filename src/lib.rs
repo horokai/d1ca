@@ -94,7 +94,7 @@ impl D1caUniverse {
     pub fn renew(&mut self, width: u32, order: u32) {
         self.width = width;
         self.order = order;
-        self.direction = 1u8;
+        // self.direction = 1u8;
         self.cells = vec![0 as u8; width as usize];
         self.lattice = vec![0 as u8; (width * width) as usize];
         for idx in 0..width {
